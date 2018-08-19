@@ -1,0 +1,11 @@
+Event	Name	Calculated From
+1	Redirect Timing	fetchStart - navigationStart
+2	App Cache Timing	domainLookupStart - fetchStart
+3	DNS Timing	domainLookupEnd - domainLookupStart
+4	TCP Timing	connectEnd - connectStart
+5	Request Timing	responseStart - connectEnd
+6	Response Timing	responseEnd - responseStart
+7	Processing Timing	loadEventStart - domLoading
+8	onLoad Timing	loadEventEnd - loadEventStart
+9	Total Page Load Time	loadEventEnd - navigationStart
+10	Performance Instances	Counter
