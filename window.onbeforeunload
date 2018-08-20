@@ -1,0 +1,36 @@
+// window.onunload
+// When a visitor leaves the page, the unload event triggers on window. We can do something there that doesn’t involve a delay, like closing related popup windows. But we can’t cancel the transition to another page.
+//
+// For that we should use another event – onbeforeunload.
+
+
+// window.onbeforeunload
+// If a visitor initiated navigation away from the page or tries to close the window, the beforeunload handler asks for additional confirmation.
+//
+// It may return a string with the question. Historically browsers used to show it, but as of now only some of them do. That’s because certain webmasters abused this event handler by showing misleading and hackish messages.
+//
+// You can try it by running this code and then reloading the page.
+
+ window.onbeforeunload = function() {
+  return "There are unsaved changes. Leave now?";
+};
+
+
+
+window.onbeforeunload = function () {/**/} //will override any existing handlers and replace it with your own.
+
+window.addEventListener("beforeunload", function () {/**/}); will add a new handler.
+
+// addEventListener is far preferred. In older browsers (that is: IE6 maybe IE7) you can use attachEvent.
+
+
+//
+// You'll commonly see code like:
+//
+// function addEvent(object, event_type, event_handler) {
+//     if (object.addEventListener) {
+//         object.addEventListener(event_type, event_handler, false);
+//     } else {
+//         object.attachEvent("on" + event_type, handler);
+//     }
+// }

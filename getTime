@@ -1,0 +1,77 @@
+/**
+ * Plugin: lPS (leftPadString)
+ * https://theblog.adobe.com/plug-ins-inside-omniture-sitecatalyst/
+ * Acronym Media 2013.12.23
+ * @param  str  v value to pad
+ * @param  int  w total width (chars) of string
+ * @param  str  z value to use as pad (default 0)
+ * @return str  left padded value
+ **/
+s.lPS = new Function("v", "w", "z", "" +
+    "z=String(z||'0');v=v+'';return v.length>=w?v:new Array(w-v.length+1" +
+    ").join(z)+v;");
+// end leftPadString
+
+/*
+  This function takes two js timestamps and calculates the difference
+  between the two and returns the difference in a d:h:m format.
+
+  By default, it does NOT round hours or minutes.
+
+  Optional 3rd arg will round UP or DOWN after the first hour and first day.
+  Ex: 0:1:12 will be rounded up to 0:2:0 or down to 0:1:0
+      1:5:6 will be rounded up to 2:0:0 or down to 1:0:0
+
+  Optional 4th arg will pad the d:h:m value with leading 0's.
+  Ex: 0:0:1 can be turned into 00:00:01
+*/
+
+/**
+ * Plugin: getTimeDifference
+ * Acronym Media 2013.12.23
+ * Dependencies: s.lPS (leftPadString)
+ * @param  str  b start timestamp
+ * @param  str  e end timestamp
+ * @param  bool r round hours/mins up or down. default down.
+ * @param  int  p number of 0's to pad d:h:m with
+ * @return str [days]:[hours]:[minutes] diff between b and e
+ **/
+s.getTimeDifference = new Function("b", "e", "r", "p", "" +
+    "var s=this;var p=Number(p||0);var r=r||'';if(r!='u'||r!=='d')r==fal" +
+    "se;var t=new Date();t.setTime(e-b);td=t.getTime();var d=Math.floor(" +
+    "td/86400000);td-=d*86400000;var h=Math.floor(td/3600000);td-=h*3600" +
+    "000;var m=Math.ceil(td/60000);if(r){if(h>0){if(m>0){if(r=='u')h++;m" +
+    "=0;}}if(d>0){if((h>0)||(m>0)){if(r=='u')d++;h=0;m=0;}}}d=s.lPS(d,p," +
+    "0);h=s.lPS(h,p,0);m=s.lPS(m,p,0);return d+':'+h+':'+m;");
+// end getTimeDifference
+
+/**
+  * Plugin: getTimeBetweenEvents
+            gets the difference in time between two events
+  * Acronym Media 2014.10.21
+  * Dependencies: getTimeDifference, lPS, inList, c_r, c_w
+  * str  e1 1st event. If falsey value passed, default is first hit
+            ever or next hit after e2 if ro==false
+  * str  e2 2nd event
+  * str  c cookie to store timestamps (default: s_gtbe)
+  * int  d cookie expiration, in days
+  * str  rc control getTimeDiff rounding
+  *         d rounds down
+            u rounds up
+       (default/any other value) returns exact
+  * bool ro true: return 'repeat' on 2nd+ e2.
+            false (default) wipe cookie after e2 to always return time
+  * return
+      string '' if no event triggered
+      string [dd:hh:mm] on e2
+      string 'repeat' after 2nd+ e2 if ro==true
+  */
+s.getTimeBetweenEvents = new Function("e1", "e2", "c", "d", "rc", "ro", "" +
+    "var s=this,rc=(rc||''),r='repeat',x='',ev=(s.events||''),c=(c||'s_g" +
+    "tbe'),ro=(ro||false),d=(Number(d)||false);var o=s.c_r(c).split('|')" +
+    ";var t=(new Date()).getTime();if(d){x=new Date;x.setTime(x.getTime(" +
+    ")+1000*60*60*24*d);}if(!e2)return '';if(!e1||s.inList(e1,ev,',',':'" +
+    ")){if(!o[0]){s.c_w(c,t,x);}}if(s.inList(e2,ev,',',':')){if(o[0]){if" +
+    "(o[1]==r)return r;if(ro)s.c_w(c,o[0]+'|'+r,x);else s.c_w(c,'',-100)" +
+    ";return s.getTimeDifference(o,t,rc);}else{return 'error: e2 before " +
+    "e1';}}return ''");
